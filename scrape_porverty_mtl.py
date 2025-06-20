@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
-import boto3
+
 
 # === Chrome Setup for Headless Downloads ===
 options = Options()
@@ -25,24 +25,55 @@ driver = webdriver.Chrome(options=options)
 url = "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/eb255cf4-128c-4840-bb9a-a01e2b84333c"
 driver.get(url)
 
-# Debug page loading so far
-time.sleep(5)
-print(driver.page_source[:1000])
+def test_page():
+    driver.get(url)
+
+    # Wait for document.readyState == complete
+    WebDriverWait(driver, 20).until(lambda d: d.execute_script("return document.readyState") == "complete")
+    print("Page fully loaded according to readyState.")
+
+    # Check if inside iframe, switch if needed (example for first iframe)
+    try:
+        iframe = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "iframe"))
+        )
+        driver.switch_to.frame(iframe)
+        print("Switched to iframe.")
+    except Exception:
+        print("No iframe found or switch not needed.")
+
+    # Wait for your element by ID or use alternative selector
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_element_located((By.ID, "resource-eb255cf4-128c-4840-bb9a-a01e2b84333c"))
+    )
+    print("✅ Waited for page to load.")
+
+test_page()
+
+try:
+    accept_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "cky-btn-accept"))
+    )
+    accept_button.click()
+    print("✅ Cookie banner accepted.")
+except Exception as e:
+    print("⚠️ Cookie banner not found or already accepted:", e)
 
 # === Wait until body loads ===
 WebDriverWait(driver, 20).until(
-    EC.presence_of_element_located((By.TAG_NAME, "body"))
+    EC.presence_of_element_located((By.ID, "resource-eb255cf4-128c-4840-bb9a-a01e2b84333c"))
 )
 
-# === Wait for the correct download button ===
+print("✅ Waited for page to load.")
+
 download_button = WebDriverWait(driver, 20).until(
     EC.element_to_be_clickable(
-        (By.XPATH,'//button[contains(@onclick, "downloadXLSX")]')
+        (By.XPATH, '//button[contains(@onclick, "downloadXLSX(\'csv_generale_33\'")]')
     )
 )
-
-# === Click to download ===
+driver.execute_script("arguments[0].scrollIntoView();", download_button)
 download_button.click()
+print("✅ Download button clicked.")
 
 # === Wait for download to complete (adjust if needed) ===
 time.sleep(10)
