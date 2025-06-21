@@ -90,7 +90,6 @@ while time.time() - start_time < timeout:
     time.sleep(1) # Wait a bit before re-checking
 
 # === Clean up temporary Chrome files ===
-# These are usually files like ".com.google.Chrome.XXXXXX" or "*.crdownload"
 for f in os.listdir(download_path):
     if f.startswith(".com.google.Chrome.") or f.endswith(".crdownload"):
         try:
