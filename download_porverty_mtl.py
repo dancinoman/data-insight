@@ -1,12 +1,15 @@
+import os
+import time
+import shutil
+
+# Selenium imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
-import time
-import shutil
 
+# AWS imports
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -17,7 +20,7 @@ os.makedirs(download_path, exist_ok=True)
 
 # === Chrome Setup for Headless Downloads ===
 options = Options()
-options.add_argument("--headless=new")  # <-- Use the updated headless mode
+options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 prefs = {
@@ -26,19 +29,29 @@ prefs = {
     "download.directory_upgrade": True,
     "safeBrowse.enabled": True
 }
+
+def set_chrome_prefs():
+    """Set Chrome preferences for downloads."""
+    return {
+        "download.default_directory": download_path,
+        "download.prompt_for_download": False,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
+    }
+
 options.add_experimental_option("prefs", prefs)
 
-# === Initialize WebDriver ===
+# ======== Initialize WebDriver =============
 driver = webdriver.Chrome(options=options)
 
-# === Navigate to page ===
+# ======== Navigate to page ========
 url = "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/eb255cf4-128c-4840-bb9a-a01e2b84333c"
 driver.get(url)
 
-# Wait for document.readyState == complete
+# ======== Wait for document.readyState ========
 WebDriverWait(driver, 20).until(lambda d: d.execute_script("return document.readyState") == "complete")
 
-# Check if inside iframe, switch if needed (example for first iframe)
+# ======== Switch to iframe if present ========
 try:
     iframe = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.TAG_NAME, "iframe"))
@@ -62,7 +75,7 @@ download_button.click()
 
 print("Download button clicked. Waiting for file to appear...")
 
-# === Wait for the file to be downloaded ===
+# ======== Wait for the file to be downloaded ========
 # This loop waits until a new file appears in the directory that is not a temporary Chrome file
 # and its size stops changing, indicating the download is complete.
 downloaded_file = None
@@ -90,9 +103,9 @@ while time.time() - start_time < timeout:
                 break
     if downloaded_file:
         break
-    time.sleep(1) # Wait a bit before re-checking
+    time.sleep(1)
 
-# === Clean up temporary Chrome files ===
+# ======== Clean up temporary Chrome files ========
 for f in os.listdir(download_path):
     if f.startswith(".com.google.Chrome.") or f.endswith(".crdownload"):
         try:
@@ -105,7 +118,7 @@ print("Files in downloads dir after processing:", os.listdir(download_path))
 
 driver.quit()
 
-# === Upload to S3 ===
+# ======== Upload to S3 on aws with credentials ========
 s3_bucket_name = 'crime-porverty-heatmap-data-analysis'
 s3_key_prefix = 'data/poverty/'
 
@@ -128,3 +141,4 @@ if downloaded_file:
         print("The file was not found")
     except NoCredentialsError:
         print("Credentials not available")
+
