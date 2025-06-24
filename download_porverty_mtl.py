@@ -5,7 +5,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
 import time
-import glob
+import shutil
+
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 # === Chrome Setup for Headless Downloads ===
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -101,3 +104,27 @@ for f in os.listdir(download_path):
 print("Files in downloads dir after processing:", os.listdir(download_path))
 
 driver.quit()
+
+# === Upload to S3 ===
+s3_bucket_name = 'crime-porverty-heatmap-data-analysis'
+s3_key_prefix = 'data/poverty/'
+
+if downloaded_file:
+    new_file_name = "poverty_family_structure.xlsx"
+    local_file_path = os.path.join(download_path, downloaded_file)
+    s3_key = os.path.join(s3_key_prefix, new_file_name)
+
+    s3 = boto3.client('s3')
+
+    try:
+        s3.upload_file(local_file_path, s3_bucket_name, s3_key)
+        print(f"File uploaded to S3: s3://{s3_bucket_name}/{s3_key}")
+
+        # Delete temporary file after download
+        shutil.rmtree(download_path)
+        print(f"Temporary file deleted: {local_file_path}")
+        print("Script completed successfully.")
+    except FileNotFoundError:
+        print("The file was not found")
+    except NoCredentialsError:
+        print("Credentials not available")
