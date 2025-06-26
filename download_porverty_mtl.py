@@ -92,8 +92,13 @@ while time.time() - start_time < timeout:
         if not f.startswith(".com.google.Chrome.") and not f.endswith(".crdownload"):
             # Check if the file size is stable (download complete)
             initial_size = -1
-            for _ in range(5):  # Check size 5 times with a small delay
-                current_size = os.path.getsize(file_path)
+            for _ in range(5):
+
+                try:
+                    current_size = os.path.getsize(file_path)
+                except FileNotFoundError:
+                    continue 
+
                 if initial_size == current_size and current_size > 0:
                     downloaded_file = f
                     break
@@ -141,4 +146,3 @@ if downloaded_file:
         print("The file was not found")
     except NoCredentialsError:
         print("Credentials not available")
-

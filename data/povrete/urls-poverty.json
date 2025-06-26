@@ -1,0 +1,78 @@
+[
+  {
+    "neighborhood" : "Ahuntsic-Cartierville",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/eb255cf4-128c-4840-bb9a-a01e2b84333c"
+  },
+  {
+    "neighborhood" : "Anjou",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/9f78dc2b-ee8f-498c-9a9f-e957286bc0f2"
+  },
+  {
+    "neighborhood" : "Côte-des-Neiges–Notre-Dame-de-Grâce",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/18228aad-2d68-49ac-a782-6d1f914baaaa"
+  },
+  {
+    "neighborhood" : "Lachine",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/1e6dc286-121d-4516-9c77-0ded7e00d5e8"
+  },
+  {
+    "neighborhood" : "LaSalle",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/f3037683-ed3a-4ad4-9cb0-0ec07fdb0b93"
+  },
+  {
+    "neighborhood" : "Le Plateau-Mont-Royal",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/9a5036b4-ac80-4d17-bcd7-15e6e4842955"
+  },
+  {
+    "neighborhood" : "Le Sud-Ouest",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/22b7a844-8248-4ada-82c6-8aa90dc4cf1b"
+  },
+  {
+    "neighborhood" : "L'Île-Bizard–Sainte-Geneviève",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/c514ebc6-3162-4237-bfd3-f76efb1fe38f"
+  },
+  {
+    "neighborhood" : "Mercier–Hochelaga-Maisonneuve",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/4600def3-5bff-4eae-a202-a060eb598228"
+  },
+  {
+    "neighborhood" : "Montréal-Nord",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/683326ac-471c-4758-a67f-f89d8e8618a0"
+  },
+  {
+    "neighborhood" : "Outremont",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/c73bbf82-fd76-40ec-98f8-871a35d26180"
+  },
+  {
+    "neighborhood" : "Pierrefonds-Roxboro",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/a15d73ce-3edf-44d4-8c04-d0f7be925049"
+  },
+  {
+    "neighborhood" : "Rivière-des-Prairies–Pointe-aux-Trembles",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/532028db-68e3-4f99-9889-7d9e7943c822"
+  },
+  {
+    "neighborhood" : "Rosemont–La Petite-Patrie",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/305c26b5-e950-450d-9d25-a2853aebe5fd"
+  },
+  {
+    "neighborhood" : "Saint-Laurent",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/b0ef6794-e393-470b-8cc0-af2ae2df86d1"
+  },
+  {
+    "neighborhood" : "Saint-Léonard",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/4e7d97ff-622b-46ab-b884-cf7a6dfca632"
+  },
+  {
+    "neighborhood" : "Verdun",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/0f8985bd-5561-4033-ad05-4f6d038bac92"
+  },
+  {
+    "neighborhood" : "Ville-Marie",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/72bf4da8-9e2c-4f84-99fc-b8ecc0c6585c"
+  },
+  {
+    "neighborhood" : "Villeray–Saint-Michel–Parc-Extension",
+    "url" : "https://donnees.montreal.ca/dataset/portrait-thematique-sur-la-pauvrete-2021/resource/6b293bf3-4be8-4f5f-aaaa-3a5c574a3757"
+  }
+]
