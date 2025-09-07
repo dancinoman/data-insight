@@ -1,6 +1,7 @@
 import os
 import re
 import pandas as pd
+import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
 from shapely import wkt
@@ -69,12 +70,18 @@ def convert_poverty_files():
     # Execute the conversion process
     execute_poverty_creation()
 
-def remove_bad_row():
+def clean_coverage():
+    # Load file
     path = Path('data','police_coverage','police_coverage')
     df = pd.read_csv(path.get_source_path() + '/police_coverage_sector.csv')
-    # Remove the row that is truncated and not recoverable
+
+    # remove the polygon that is not closed
     df = df.drop(index=1)
+
+    # Save cleaned file
     df.to_csv(path.get_destination_path() + '/police_coverage_sector_cleaned.csv', index=False)
+
+
 
 def associate_points_with_districts():
     """
@@ -85,9 +92,7 @@ def associate_points_with_districts():
     """
     # Centralize polygon
     def geocenter(id, points):
-        district_gdf = gdf.to_crs(points.crs)
-        joined_data = gpd.sjoin(points, district_gdf, how="inner", predicate="within")
-        centroids_projected = district_gdf.to_crs(epsg=2950)
+        centroids_projected = points.to_crs(epsg=2950)
         centroids_projected['geometry_centroid'] = centroids_projected.geometry.centroid
 
         # Convert the centroids back to EPSG:4326 (latitude/longitude)
@@ -110,6 +115,7 @@ def associate_points_with_districts():
     path_source1 = Path("data", "crime", "crime")
     df_crime = pd.read_csv(path_source1.get_source_path() + "/crime_montreal_cleaned.csv")
     geometry_crime = [Point(xy) for xy in zip(df_crime['LONGITUDE'], df_crime['LATITUDE'])]
+    #Adds geometry column
     points_gdf_crime = gpd.GeoDataFrame(df_crime, geometry=geometry_crime, crs="EPSG:4326")
 
     # Load the GeoJSON file
@@ -118,25 +124,40 @@ def associate_points_with_districts():
     # Load municipality
     df_municipality = pd.read_csv(path_source2.get_source_path() + "/municipality_montreal_cleaned.csv")
 
+    gdf = gpd.read_file(geojson)
+    district_gdf = gdf.to_crs(points_gdf_crime.crs)
+    joined_data = gpd.sjoin(points_gdf_crime, district_gdf, how="inner", predicate="within")
+
     # Load police coverage
     path_source3 = Path("data","police_coverage", "police_coverage")
     df_coverage = pd.read_csv(path_source3.get_source_path() + "/police_coverage_sector_cleaned.csv")
 
+      # Then proceed with conversion
     geometry_coverage = df_coverage['wkt'].apply(wkt.loads)
-    points_gdf_coverage = gpd.GeoDataFrame(df_coverage, geometry=geometry_coverage, crs="EPSG:4326")
+    df_coverage = gpd.GeoDataFrame(df_coverage, geometry=geometry_coverage, crs="EPSG:4326")
 
-    gdf = gpd.read_file(geojson)
+    is_valid = df_coverage['geometry'].is_valid
+
+    # Separate the valid and invalid rows
+    valid_geometries = df_coverage[is_valid].copy()
+    invalid_geometries = df_coverage[~is_valid].copy()
+
+    # Fix the invalid geometries using buffer(0)
+    invalid_geometries['geometry'] = invalid_geometries['geometry'].buffer(0)
+
+    # Re-combine the dataframes
+    points_coverage_fixed = pd.concat([valid_geometries, invalid_geometries])
 
     # Perform spatial join to associate points with districts
-    crime_districts, crime_to_merge = geocenter('nom_arr',points_gdf_crime)
-    coverage_wkt, coverage_to_merge = geocenter('pdq', points_gdf_coverage)
+    crime_districts, crime_to_merge = geocenter('nom_arr', joined_data)
+    coverage_wkt, coverage_to_merge = geocenter('PDQ', points_coverage_fixed)
 
     # Remove null values in the 'nom_arr' column
     crime_districts = crime_districts.dropna(subset=["nom_arr"])
 
     # Ensures each municipality record receive their district centroid matched
     municipaly_center = pd.merge(df_municipality, crime_to_merge, left_on='district_name', right_on= 'nom_arr', how='left')
-    coverage_center = pd.merge(df_coverage, coverage_to_merge, left_on='pdq', right_on='pdq', how='left')
+    coverage_center = pd.merge(df_coverage, coverage_to_merge, left_on='PDQ', right_on='PDQ', how='left')
 
     # Save the result to a new CSV file
     path_destination_crime = path_source1.get_destination_path() + "/crime_montreal_district_cleaned.csv"
