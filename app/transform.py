@@ -112,6 +112,7 @@ def associate_points_with_districts():
 
         return joined_data.drop(["geometry"], axis=1), centroids_for_merge
 
+
     path_source1 = Path("data", "crime", "crime")
     df_crime = pd.read_csv(path_source1.get_source_path() + "/crime_montreal_cleaned.csv")
     geometry_crime = [Point(xy) for xy in zip(df_crime['LONGITUDE'], df_crime['LATITUDE'])]
@@ -128,43 +129,20 @@ def associate_points_with_districts():
     district_gdf = gdf.to_crs(points_gdf_crime.crs)
     joined_data = gpd.sjoin(points_gdf_crime, district_gdf, how="inner", predicate="within")
 
-    # Load police coverage
-    path_source3 = Path("data","police_coverage", "police_coverage")
-    df_coverage = pd.read_csv(path_source3.get_source_path() + "/police_coverage_sector_cleaned.csv")
-
-      # Then proceed with conversion
-    geometry_coverage = df_coverage['wkt'].apply(wkt.loads)
-    df_coverage = gpd.GeoDataFrame(df_coverage, geometry=geometry_coverage, crs="EPSG:4326")
-
-    is_valid = df_coverage['geometry'].is_valid
-
-    # Separate the valid and invalid rows
-    valid_geometries = df_coverage[is_valid].copy()
-    invalid_geometries = df_coverage[~is_valid].copy()
-
-    # Fix the invalid geometries using buffer(0)
-    invalid_geometries['geometry'] = invalid_geometries['geometry'].buffer(0)
-
-    # Re-combine the dataframes
-    points_coverage_fixed = pd.concat([valid_geometries, invalid_geometries])
 
     # Perform spatial join to associate points with districts
     crime_districts, crime_to_merge = geocenter('nom_arr', joined_data)
-    coverage_wkt, coverage_to_merge = geocenter('PDQ', points_coverage_fixed)
 
     # Remove null values in the 'nom_arr' column
     crime_districts = crime_districts.dropna(subset=["nom_arr"])
 
     # Ensures each municipality record receive their district centroid matched
     municipaly_center = pd.merge(df_municipality, crime_to_merge, left_on='district_name', right_on= 'nom_arr', how='left')
-    coverage_center = pd.merge(df_coverage, coverage_to_merge, left_on='PDQ', right_on='PDQ', how='left')
 
     # Save the result to a new CSV file
     path_destination_crime = path_source1.get_destination_path() + "/crime_montreal_district_cleaned.csv"
     path_destination_municipality = path_source2.get_destination_path() + "/municipality_montreal_centered_cleaned.csv"
-    path_destination_coverage = path_source3.get_destination_path() + "/police_coverage_montreal_centered_cleaned.csv"
 
     # Save results in dataframes
     pd.DataFrame(crime_districts).to_csv(path_destination_crime, index=False)
     pd.DataFrame(municipaly_center).to_csv(path_destination_municipality, index=False)
-    pd.DataFrame(coverage_center).to_csv(path_destination_coverage, index=False)
